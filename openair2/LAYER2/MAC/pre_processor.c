@@ -722,12 +722,13 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             continue;
 
           transmission_mode = mac_xface->get_transmission_mode(Mod_id,CC_id,rnti);
-          for(int z = 0; z< total_cc; z++) {
+          int z = 0;
+          for(; z < total_cc; z++) {
               if (valid_CCs[z] == CC_id) break;
-              else {
-                  valid_CCs[temp] = CC_id;
-                  total_cc += 1;
-              }
+          }
+          if (z == total_cc) {
+            valid_CCs[total_cc] = CC_id;
+            total_cc += 1;
           }
           LOG_T(MAC,"calling dlsch_scheduler_pre_processor_allocate .. \n ");
           dlsch_scheduler_pre_processor_allocate (Mod_id,
@@ -742,89 +743,6 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                   rballoc_sub,
                                                   MIMO_mode_indicator);
 
-#ifdef TM5
-
-          // data chanel TM5: to be revisted
-          if ((round == 0 )  &&
-              (transmission_mode == 5)  &&
-              (ue_sched_ctl->dl_pow_off[CC_id] != 1)) {
-
-            for(j=0; j<N_RBG[CC_id]; j+=2) {
-
-              if( (((j == (N_RBG[CC_id]-1))&& (rballoc_sub[CC_id][j] == 0) && (ue_sched_ctl->rballoc_sub_UE[CC_id][j] == 0))  ||
-                   ((j < (N_RBG[CC_id]-1)) && (rballoc_sub[CC_id][j+1] == 0) && (ue_sched_ctl->rballoc_sub_UE[CC_id][j+1] == 0)) ) &&
-                  (nb_rbs_required_remaining[CC_id][UE_id]>0)) {
-
-                for (ii = UE_list->next[i+1]; ii >=0; ii=UE_list->next[ii]) {
-
-                  UE_id2 = ii;
-                  rnti2 = UE_RNTI(Mod_id,UE_id2);
-		  ue_sched_ctl2 = &UE_list->UE_sched_ctrl[UE_id2];
-		  harq_pid2 = ue_sched_ctl2->harq_pid[CC_id];
-		  round2    = ue_sched_ctl2->round[CC_id];
-                  if(rnti2 == NOT_A_RNTI)
-                    continue;
-		  if (UE_list->UE_sched_ctrl[UE_id2].ul_out_of_sync == 1)
-		    continue;
-                  if (!phy_stats_exist(Mod_idP, rnti2))
-                    continue;
-
-                  eNB_UE_stats2 = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti2);
-                  //mac_xface->get_ue_active_harq_pid(Mod_id,CC_id,rnti2,frameP,subframeP,&harq_pid2,&round2,0);
-
-                  if ((mac_eNB_get_rrc_status(Mod_id,rnti2) >= RRC_RECONFIGURED) &&
-                      (round2==0) &&
-                      (mac_xface->get_transmission_mode(Mod_id,CC_id,rnti2)==5) &&
-                      (ue_sched_ctl->dl_pow_off[CC_id] != 1)) {
-
-                    if( (((j == (N_RBG[CC_id]-1)) && (ue_sched_ctl->rballoc_sub_UE[CC_id][j] == 0)) ||
-                         ((j < (N_RBG[CC_id]-1)) && (ue_sched_ctl->rballoc_sub_UE[CC_id][j+1] == 0))  ) &&
-                        (nb_rbs_required_remaining[CC_id][UE_id2]>0)) {
-
-                      if((((eNB_UE_stats2->DL_pmi_single^eNB_UE_stats1->DL_pmi_single)<<(14-j))&0xc000)== 0x4000) { //MU-MIMO only for 25 RBs configuration
-
-                        rballoc_sub[CC_id][j] = 1;
-                        ue_sched_ctl->rballoc_sub_UE[CC_id][j] = 1;
-                        ue_sched_ctl2->rballoc_sub_UE[CC_id][j] = 1;
-                        MIMO_mode_indicator[CC_id][j] = 0;
-
-                        if (j< N_RBG[CC_id]-1) {
-                          rballoc_sub[CC_id][j+1] = 1;
-                          ue_sched_ctl->rballoc_sub_UE[CC_id][j+1] = 1;
-                          ue_sched_ctl2->rballoc_sub_UE[CC_id][j+1] = 1;
-                          MIMO_mode_indicator[CC_id][j+1] = 0;
-                        }
-
-                        ue_sched_ctl->dl_pow_off[CC_id] = 0;
-                        ue_sched_ctl2->dl_pow_off[CC_id] = 0;
-
-
-                        if ((j == N_RBG[CC_id]-1) &&
-                            ((PHY_vars_eNB_g[Mod_id][CC_id]->frame_parms.N_RB_DL == 25) ||
-                             (PHY_vars_eNB_g[Mod_id][CC_id]->frame_parms.N_RB_DL == 50))) {
-			  
-                          nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit[CC_id]+1;
-                          ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit[CC_id]-1;
-                          nb_rbs_required_remaining[CC_id][UE_id2] = nb_rbs_required_remaining[CC_id][UE_id2] - min_rb_unit[CC_id]+1;
-                          ue_sched_ctl2->pre_nb_available_rbs[CC_id] = ue_sched_ctl2->pre_nb_available_rbs[CC_id] + min_rb_unit[CC_id]-1;
-                        } else {
-                          
-			  nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - 4;
-                          ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + 4;
-                          nb_rbs_required_remaining[CC_id][UE_id2] = nb_rbs_required_remaining[CC_id][UE_id2] - 4;
-                          ue_sched_ctl2->pre_nb_available_rbs[CC_id] = ue_sched_ctl2->pre_nb_available_rbs[CC_id] + 4;
-                        }
-
-                        break;
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-
-#endif
         }
       }
     } // total_ue_count
