@@ -55,6 +55,9 @@
 
 #define DEBUG_eNB_SCHEDULER 1
 #define DEBUG_HEADER_PARSING 1
+int total_ue_encountered = 0;
+UE_AVG_INFO ue_avg_info[5];
+
 //#define DEBUG_PACKET_TRACE 1
 
 //#define ICIC 0
@@ -172,7 +175,8 @@ void assign_rbs_required (module_id_t Mod_id,
                           frame_t     frameP,
                           sub_frame_t subframe,
                           uint16_t    nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
-                          int         min_rb_unit[MAX_NUM_CCs])
+                          int         min_rb_unit[MAX_NUM_CCs],
+                          float ach_rate[MAX_NUM_CCs][NUMBER_OF_UE_MAX])
 {
 
 
@@ -225,16 +229,6 @@ void assign_rbs_required (module_id_t Mod_id,
       }
     }
 
-    /*
-    if ((mac_get_rrc_status(Mod_id,1,UE_id) < RRC_RECONFIGURED)){  // If we still don't have a default radio bearer
-      nb_rbs_required[pCCid][UE_id] = PHY_vars_eNB_g[Mod_id][pCCid]->frame_parms.N_RB_DL;
-      continue;
-    }
-    */
-    /* NN --> RK
-     * check the index of UE_template"
-     */
-    //    if (UE_list->UE_template[UE_id]->dl_buffer_total> 0) {
     if (UE_list->UE_template[pCCid][UE_id].dl_buffer_total> 0) {
       LOG_D(MAC,"[preprocessor] assign RB for UE %d\n",UE_id);
 
@@ -270,6 +264,15 @@ void assign_rbs_required (module_id_t Mod_id,
 
         LOG_D(MAC,"[eNB %d] Frame %d: UE %d on CC %d: RB unit %d,  nb_required RB %d (TBS %d, mcs %d)\n",
               Mod_id, frameP,UE_id, CC_id,  min_rb_unit[CC_id], nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
+
+        float old_rate = 1.0;
+        for (int z = 0; z<total_ue_encountered; z++){
+            if (ue_avg_info[z].rnti == rnti) old_rate = ue_avg_info[z].avg_rate;
+            break;
+
+        }
+        LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f \n", UE_id, old_rate);
+        ach_rate[CC_id][UE_id] = ((float) TBS/.001)/old_rate;
       }
     }
   }
@@ -535,6 +538,10 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
   UE_list_t *UE_list = &eNB_mac_inst[Mod_id].UE_list;
   LTE_DL_FRAME_PARMS   *frame_parms[MAX_NUM_CCs] = {0};
 
+  //shibin local variables
+  float ach_rate[MAX_NUM_CCs][NUMBER_OF_UE_MAX];
+  memset(ach_rate, -1.0, sizeof(ach_rate[0][0]) * MAX_NUM_CCs * NUMBER_OF_UE_MAX);
+
   int transmission_mode = 0;
   UE_sched_ctrl *ue_sched_ctl;
   //  int rrc_status           = RRC_IDLE;
@@ -589,7 +596,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
 
   // Calculate the number of RBs required by each UE on the basis of logical channel's buffer
-  assign_rbs_required (Mod_id,frameP,subframeP,nb_rbs_required,min_rb_unit);
+  assign_rbs_required (Mod_id,frameP,subframeP,nb_rbs_required,min_rb_unit, ach_rate);
 
 
 
@@ -677,44 +684,23 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
       // control channel or retransmission
       /* TODO: do we have to check for retransmission? */
-      if (mac_eNB_get_rrc_status(Mod_id,rnti) < RRC_RECONFIGURED || round > 0) {
-        nb_rbs_required_remaining_1[CC_id][i] = nb_rbs_required[CC_id][i];
-      } else {
-        nb_rbs_required_remaining_1[CC_id][i] = cmin(average_rbs_per_user[CC_id],nb_rbs_required[CC_id][i]);
-
-      }
+      nb_rbs_required_remaining_1[CC_id][i] = nb_rbs_required[CC_id][i];
     }
   }
 
   //Allocation to UEs is done in 2 rounds,
   // 1st stage: average number of RBs allocated to each UE
   // 2nd stage: remaining RBs are allocated to high priority UEs
-  for(r1=0; r1<2; r1++) {
 
     for(i=UE_list->head; i>=0; i=UE_list->next[i]) {
       for (ii=0; ii<UE_num_active_CC(UE_list,i); ii++) {
         CC_id = UE_list->ordered_CCids[ii][i];
-
-        if(r1 == 0) {
-          nb_rbs_required_remaining[CC_id][i] = nb_rbs_required_remaining_1[CC_id][i];
-        } else { // rb required based only on the buffer - rb allloctaed in the 1st round + extra reaming rb form the 1st round
-          nb_rbs_required_remaining[CC_id][i] = nb_rbs_required[CC_id][i]-nb_rbs_required_remaining_1[CC_id][i]+nb_rbs_required_remaining[CC_id][i];
-if (nb_rbs_required_remaining[CC_id][i]<0) abort();
-        }
-
-        if (nb_rbs_required[CC_id][i]> 0 )
-          LOG_D(MAC,"round %d : nb_rbs_required_remaining[%d][%d]= %d (remaining_1 %d, required %d,  pre_nb_available_rbs %d, N_RBG %d, rb_unit %d)\n",
-                r1, CC_id, i,
-                nb_rbs_required_remaining[CC_id][i],
-                nb_rbs_required_remaining_1[CC_id][i],
-                nb_rbs_required[CC_id][i],
-                UE_list->UE_sched_ctrl[i].pre_nb_available_rbs[CC_id],
-                N_RBG[CC_id],
-                min_rb_unit[CC_id]);
-
+        nb_rbs_required_remaining[CC_id][i] = nb_rbs_required_remaining_1[CC_id][i];
       }
     }
 
+    uint8_t valid_CCs[MAX_NUM_CCs];
+    int total_cc = 0;
     if (total_ue_count > 0 ) {
       for(i=UE_list->head; i>=0; i=UE_list->next[i]) {
         UE_id = i;
@@ -736,13 +722,13 @@ if (nb_rbs_required_remaining[CC_id][i]<0) abort();
             continue;
 
           transmission_mode = mac_xface->get_transmission_mode(Mod_id,CC_id,rnti);
-	  //          mac_xface->get_ue_active_harq_pid(Mod_id,CC_id,rnti,frameP,subframeP,&harq_pid,&round,0);
-          //rrc_status = mac_eNB_get_rrc_status(Mod_id,rnti);
-          /* 1st allocate for the retx */
-
-          // retransmission in data channels
-          // control channel in the 1st transmission
-          // data channel for all TM
+          for(int z = 0; z< total_cc; z++) {
+              if (valid_CCs[z] == CC_id) break;
+              else {
+                  valid_CCs[temp] = CC_id;
+                  total_cc += 1;
+              }
+          }
           LOG_T(MAC,"calling dlsch_scheduler_pre_processor_allocate .. \n ");
           dlsch_scheduler_pre_processor_allocate (Mod_id,
                                                   UE_id,
@@ -842,7 +828,7 @@ if (nb_rbs_required_remaining[CC_id][i]<0) abort();
         }
       }
     } // total_ue_count
-  } // end of for for r1 and r2
+   // end of for for r1 and r2
 
 #ifdef TM5
 

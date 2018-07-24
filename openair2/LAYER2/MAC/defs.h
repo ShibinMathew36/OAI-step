@@ -1170,6 +1170,13 @@ typedef struct {
   uint8_t n_adj_cells;
 } neigh_cell_id_t;
 
+typedef struct {
+    uint16_t rnti;
+    float avg_rate;
+    float current_tti;
+}UE_AVG_INFO;
+
+
 #include "proto.h"
 /*@}*/
 #endif /*__LAYER2_MAC_DEFS_H__ */
