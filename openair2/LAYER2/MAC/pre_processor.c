@@ -530,10 +530,10 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
   uint16_t                nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX];
   uint16_t                nb_rbs_required_remaining[MAX_NUM_CCs][NUMBER_OF_UE_MAX];
   uint16_t                nb_rbs_required_remaining_1[MAX_NUM_CCs][NUMBER_OF_UE_MAX];
-  uint16_t                average_rbs_per_user[MAX_NUM_CCs] = {0};
+  //uint16_t                average_rbs_per_user[MAX_NUM_CCs] = {0};
   rnti_t             rnti;
   int                min_rb_unit[MAX_NUM_CCs];
-  uint16_t r1=0;
+  //uint16_t r1=0;
   uint8_t CC_id;
   UE_list_t *UE_list = &eNB_mac_inst[Mod_id].UE_list;
   LTE_DL_FRAME_PARMS   *frame_parms[MAX_NUM_CCs] = {0};
@@ -629,7 +629,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
       if (UE_list->UE_sched_ctrl[UE_id].harq_pid[CC_id]<0)
         continue;
 
-      average_rbs_per_user[CC_id]=0;
+      //average_rbs_per_user[CC_id]=0;
 
       frame_parms[CC_id] = mac_xface->get_lte_frame_parms(Mod_id,CC_id);
 
@@ -655,13 +655,6 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
        * per user by a coefficient which represents the degree of priority.
        */
 
-      if (total_ue_count == 0) {
-        average_rbs_per_user[CC_id] = 0;
-      } else if( (min_rb_unit[CC_id] * total_ue_count) <= (frame_parms[CC_id]->N_RB_DL) ) {
-        average_rbs_per_user[CC_id] = (uint16_t) floor(frame_parms[CC_id]->N_RB_DL/total_ue_count);
-      } else {
-        average_rbs_per_user[CC_id] = min_rb_unit[CC_id]; // consider the total number of use that can be scheduled UE
-      }
     }
   }
 
@@ -730,6 +723,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             valid_CCs[total_cc] = CC_id;
             total_cc += 1;
           }
+          LOG_I(MAC,"Shibin calculated total_cc = %d \n ", total_cc);
           LOG_T(MAC,"calling dlsch_scheduler_pre_processor_allocate .. \n ");
           dlsch_scheduler_pre_processor_allocate (Mod_id,
                                                   UE_id,
