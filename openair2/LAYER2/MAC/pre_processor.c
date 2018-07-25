@@ -271,7 +271,7 @@ void assign_rbs_required (module_id_t Mod_id,
             break;
 
         }
-        LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f \n", UE_id, old_rate);
+        LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f and TBS value = %d\n", UE_id, old_rate, TBS);
         ach_rate[CC_id][UE_id] = ((float) TBS/.001)/old_rate;
       }
     }
@@ -740,7 +740,22 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         }
       }
     } // total_ue_count
-   // end of for for r1 and r2
+
+    for (i =0; i < total_cc; i++) {
+        int index = 0;
+        int UE_per_cc[5];
+        float priority_index[5];
+        memset(UE_per_cc, -1, sizeof(UE_per_cc[0]) * 5);
+        memset(priority_index, -1.0, sizeof(priority_index[0]) * 5);
+        for (int z = 0; z < NUMBER_OF_UE_MAX; z++) {
+            if ((float) ach_rate[valid_CCs[i]][z] != (float) -1.0) {
+                priority_index[index] = ach_rate[valid_CCs[i]][z];
+                UE_per_cc[index] = z;
+                index++;
+            }
+        }
+        LOG_I(MAC,"Shibin calculated UE per CC  = %d \n ", index);
+    }
 
 #ifdef TM5
 
