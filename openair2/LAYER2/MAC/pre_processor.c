@@ -540,7 +540,9 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
   //shibin local variables
   float ach_rate[MAX_NUM_CCs][NUMBER_OF_UE_MAX];
-  memset(ach_rate, -1.0, sizeof(ach_rate[0][0]) * MAX_NUM_CCs * NUMBER_OF_UE_MAX);
+  for(int m = 0; m < MAX_NUM_CCs; m++)
+      for(int n = 0; n < NUMBER_OF_UE_MAX; n++)
+          ach_rate[m][n] = -1.0;
 
   int transmission_mode = 0;
   UE_sched_ctrl *ue_sched_ctl;
@@ -740,21 +742,31 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         }
       }
     } // total_ue_count
-
+    // this fuck doesnt work
     for (i =0; i < total_cc; i++) {
         int index = 0;
         int UE_per_cc[5];
         float priority_index[5];
-        memset(UE_per_cc, -1, sizeof(UE_per_cc[0]) * 5);
-        memset(priority_index, -1.0, sizeof(priority_index[0]) * 5);
+        for(int dummy = 0; dummy < 5; dummy++) UE_per_cc[dummy] = -1;
+        for(int dummy = 0; dummy < 5; dummy++) priority_index[dummy] = -1.0;
         for (int z = 0; z < NUMBER_OF_UE_MAX; z++) {
-            if ((float) ach_rate[valid_CCs[i]][z] != (float) -1.0) {
+            if (ach_rate[valid_CCs[i]][z] != -1.0) {
                 priority_index[index] = ach_rate[valid_CCs[i]][z];
                 UE_per_cc[index] = z;
                 index++;
             }
         }
         LOG_I(MAC,"Shibin calculated UE per CC  = %d \n ", index);
+        // arrange the UE in increasing order or priority index
+        for(int a = 0; a<index; a++){
+            for(int b = a + 1; b<index; b++){
+                if (priority_index[a] < priority_index[b]){
+                    int val_ue = UE_per_cc[a];
+                    UE_per_cc[a] = UE_per_cc[b];
+                    UE_per_cc[b] = val_ue;
+                }
+            }
+        }
     }
 
 #ifdef TM5
