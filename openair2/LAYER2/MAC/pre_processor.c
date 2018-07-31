@@ -727,17 +727,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 }
                 LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
                 LOG_T(MAC, "calling dlsch_scheduler_pre_processor_allocate .. \n ");
-                dlsch_scheduler_pre_processor_allocate(Mod_id,
-                                                       UE_id,
-                                                       CC_id,
-                                                       N_RBG[CC_id],
-                                                       transmission_mode,
-                                                       min_rb_unit[CC_id],
-                                                       frame_parms[CC_id]->N_RB_DL,
-                                                       nb_rbs_required,
-                                                       nb_rbs_required_remaining,
-                                                       rballoc_sub,
-                                                       MIMO_mode_indicator);
+
             }
         }
         // total_ue_count
@@ -799,6 +789,18 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     UE_to_edit = &local_rb_allocations[local_stored];
                     local_stored += 1;
                 }
+
+                dlsch_scheduler_pre_processor_allocate(Mod_id,
+                                                       UE_id,
+                                                       CC_id,
+                                                       N_RBG[CC_id],
+                                                       transmission_mode,
+                                                       min_rb_unit[CC_id],
+                                                       frame_parms[CC_id]->N_RB_DL,
+                                                       nb_rbs_required,
+                                                       nb_rbs_required_remaining,
+                                                       rballoc_sub,
+                                                       MIMO_mode_indicator, UE_to_edit);
                 LOG_I(MAC, "Shibin local value before edit UE ID = %d amd stored TBS = %f \n ", UE_to_edit->UE_id, UE_to_edit->total_tbs_rate);
             }
         }
@@ -1024,12 +1026,16 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     uint16_t      nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
     uint16_t      nb_rbs_required_remaining[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
     unsigned char rballoc_sub[MAX_NUM_CCs][N_RBG_MAX],
-    unsigned char MIMO_mode_indicator[MAX_NUM_CCs][N_RBG_MAX])
+    unsigned char MIMO_mode_indicator[MAX_NUM_CCs][N_RBG_MAX], UE_TEMP_INFO *UE_to_edit)
 {
 
-  int i;
+  int i, temp_rb = 0;
   UE_list_t *UE_list=&eNB_mac_inst[Mod_id].UE_list;
   UE_sched_ctrl *ue_sched_ctl = &UE_list->UE_sched_ctrl[UE_id];
+  //Shibin fetchubg rnti for UE stat
+  rnti_t rnti = UE_RNTI(Mod_id,UE_id);
+  LTE_eNB_UE_stats *eNB_UE_stats = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti);
+
 
   for(i=0; i<N_RBG; i++) {
 
@@ -1051,6 +1057,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
             }
             nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit+1;
             ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit - 1;
+            temp_rb += min_rb_unit - 1;
           }
         } else {
 	  if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
@@ -1062,11 +1069,14 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
 	    }
 	    nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit;
 	    ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit;
+	    temp_rb += min_rb_unit;
 	  }
 	}
       } // dl_pow_off[CC_id][UE_id] ! = 0
     }
   }
+  UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
+  LOG_I(MAC,"Shibin  calculated value to store for UE %d = %f \n", rnti, UE_to_edit->total_tbs_rate);
 }
 
 
