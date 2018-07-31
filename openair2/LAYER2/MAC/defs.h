@@ -1176,6 +1176,10 @@ typedef struct {
     float current_tti;
 }UE_AVG_INFO;
 
+typedef struct {
+    uint16_t UE_id;
+    float total_tbs_rate;
+}UE_TEMP_INFO;
 
 #include "proto.h"
 /*@}*/
