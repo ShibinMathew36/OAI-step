@@ -696,6 +696,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
     uint8_t valid_CCs[MAX_NUM_CCs];
     int total_cc = 0;
+    UE_TEMP_INFO local_rb_allocations[total_ue_count];// to keep track of number of local objects created
+    int local_stored = 0;
     if (total_ue_count > 0 ) {
         for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
             UE_id = i;
@@ -726,14 +728,11 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     total_cc += 1;
                 }
                 LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
-                LOG_T(MAC, "calling dlsch_scheduler_pre_processor_allocate .. \n ");
-
             }
         }
         // total_ue_count
         // this fuck doesnt work
-        UE_TEMP_INFO local_rb_allocations[total_ue_count];
-        int local_stored = 0; // to keep track of number of local objects created
+
         for (i = 0; i < total_cc; i++) {
             int index = 0;
             int UE_per_cc[5];
@@ -779,7 +778,10 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 UE_TEMP_INFO *UE_to_edit;
                 int z = 0;
                 for(; z < local_stored; z++)
-                    if (UE_id == local_rb_allocations[z].UE_id) UE_to_edit = &local_rb_allocations[z];
+                    if (UE_id == local_rb_allocations[z].UE_id) {
+                        UE_to_edit = &local_rb_allocations[z];
+                        LOG_I(MAC, "Shibin found stored value ******************\n");
+                    }
 
                 if (z == local_stored){
                     UE_TEMP_INFO temp_struct;
@@ -805,6 +807,33 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             }
         }
     }
+    //shibin updating the current value to 0 for all stored UE details
+    for (int x = 0; x<total_ue_encountered; x++) {
+        ue_avg_info[x].current_tti = 0.0;
+    }
+    // shibin update the stored average rate based on the allocation in this TTI
+    for (int z=0; z< local_stored; z++){
+        int x = 0;
+        for (; x<total_ue_encountered; x++){
+            if (ue_avg_info[x].rnti == UE_RNTI(Mod_id,local_rb_allocations[z].UE_id)){
+                ue_avg_info[x].current_tti = (1/99)*local_rb_allocations[z].total_tbs_rate;
+            }
+        }
+        if (x == total_ue_encountered){
+            UE_AVG_INFO temp_avg_info;
+            temp_avg_info.rnti = UE_RNTI(Mod_id,local_rb_allocations[z].UE_id);
+            ue_avg_info[x].current_tti = (1/99)*local_rb_allocations[z].total_tbs_rate;
+            temp_avg_info.avg_rate = 0.0;
+            ue_avg_info[x] = temp_avg_info;
+            total_ue_encountered += 1;
+        }
+    }
+    // shibin - update the rate of UE not in the current TTI
+    for (int x = 0; x<total_ue_encountered; x++) {
+        ue_avg_info[x].avg_rate = (1 - 1/99)*ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
+        LOG_I(MAC,"Shibin  tfinal stored values UE ID = %d and avg rate = %f", ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
+    }
+
 #ifdef TM5
 
   // This has to be revisited!!!!
