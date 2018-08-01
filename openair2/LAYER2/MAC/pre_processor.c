@@ -807,7 +807,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             }
         }
     }
-    //shibin updating the current value to 0 for all stored UE details
+    /*shibin updating the current value to 0 for all stored UE details
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].current_tti = 0.0;
     }
@@ -831,8 +831,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].avg_rate = (1 - 1/99)*ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
-        LOG_I(MAC,"Shibin  tfinal stored values UE ID = %d and avg rate = %f", ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
-    }
+        LOG_I(MAC,"Shibin  tfinal stored values UE ID = %d and avg rate = %f \n", ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
+    } */
 
 #ifdef TM5
 
