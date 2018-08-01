@@ -817,7 +817,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         for (; x<total_ue_encountered; x++) {
             if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
                 ue_avg_info[x].current_tti = (1 / 99) * local_rb_allocations[z].total_tbs_rate;
-                LOG_I(MAC, "Shibin found stored value after allocate ******************\n");
+                //LOG_I(MAC, "Shibin found stored value after allocate ******************\n");
             }
         }
 
@@ -828,7 +828,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             temp_avg_info.avg_rate = 0.0;
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
-            LOG_I(MAC, "Shibin creating new entry ******************\n");
+            LOG_I(MAC, "Shibin creating new entry ****************** for rnti = %d\n", UE_RNTI(Mod_id,local_rb_allocations[z].UE_id));
         }
     }
     // shibin - update the rate of UE not in the current TTI
