@@ -268,13 +268,13 @@ void assign_rbs_required (module_id_t Mod_id,
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
             if (ue_avg_info[z].rnti == rnti) {
-                LOG_I(MAC,"Shibin found stored value in assign rbs ***** \n");
                 old_rate = ue_avg_info[z].avg_rate;
+                LOG_I(MAC,"Shibin found stored value in assign rbs ***** %f\n", old_rate);
                 break;
             }
         }
-        LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f and TBS value = %d\n", UE_id, old_rate, TBS);
-        ach_rate[CC_id][UE_id] = ((float) TBS/.001)/old_rate;
+        ach_rate[CC_id][UE_id] = (TBS/.001)/old_rate;
+        LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f old rate = %f TBS value = %d\n", UE_id, ach_rate[CC_id][UE_id], old_rate, TBS);
       }
     }
   }
@@ -817,7 +817,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         for (; x<total_ue_encountered; x++) {
             if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
                 ue_avg_info[x].current_tti = (1 / 99) * local_rb_allocations[z].total_tbs_rate;
-                //LOG_I(MAC, "Shibin found stored value after allocate ******************\n");
+                break;
+                LOG_I(MAC, "Shibin found stored value after allocate ****************** updated value = %f\n", ue_avg_info[x].current_tti);
             }
         }
 
