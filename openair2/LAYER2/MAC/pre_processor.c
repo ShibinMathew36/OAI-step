@@ -267,9 +267,10 @@ void assign_rbs_required (module_id_t Mod_id,
 
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
-            //if (ue_avg_info[z].rnti == rnti) old_rate = ue_avg_info[z].avg_rate;
-            break;
-
+            if (ue_avg_info[z].rnti == rnti) {
+                old_rate = ue_avg_info[z].avg_rate;
+                break;
+            }
         }
         LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f and TBS value = %d\n", UE_id, old_rate, TBS);
         ach_rate[CC_id][UE_id] = ((float) TBS/.001)/old_rate;
