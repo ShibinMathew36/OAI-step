@@ -268,6 +268,7 @@ void assign_rbs_required (module_id_t Mod_id,
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
             if (ue_avg_info[z].rnti == rnti) {
+                LOG_I(MAC,"Shibin found stored value in assign rbs ***** \n");
                 old_rate = ue_avg_info[z].avg_rate;
                 break;
             }
@@ -776,11 +777,12 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 transmission_mode = mac_xface->get_transmission_mode(Mod_id, CC_id, rnti);
                 UE_TEMP_INFO *UE_to_edit;
                 int z = 0;
-                for(; z < local_stored; z++)
+                for(; z < local_stored; z++) {
+                    LOG_I(MAC, "Shibin local stored value vs new %d and %d ******************\n", local_rb_allocations[z].UE_id, UE_id);
                     if (UE_id == local_rb_allocations[z].UE_id) {
                         UE_to_edit = &local_rb_allocations[z];
-                        LOG_I(MAC, "Shibin found stored value ******************\n");
                     }
+                }
 
                 if (z == local_stored){
                     UE_TEMP_INFO temp_struct;
@@ -812,9 +814,12 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     // shibin update the stored average rate based on the allocation in this TTI
     for (int z=0; z< local_stored; z++){
         int x = 0;
-        for (; x<total_ue_encountered; x++)
-            if (ue_avg_info[x].rnti == UE_RNTI(Mod_id,local_rb_allocations[z].UE_id))
-                ue_avg_info[x].current_tti = (1/99)*local_rb_allocations[z].total_tbs_rate;
+        for (; x<total_ue_encountered; x++) {
+            if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
+                ue_avg_info[x].current_tti = (1 / 99) * local_rb_allocations[z].total_tbs_rate;
+                LOG_I(MAC, "Shibin found stored value after allocate ******************\n");
+            }
+        }
 
         if (x == total_ue_encountered){
             UE_AVG_INFO temp_avg_info;
@@ -823,13 +828,14 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             temp_avg_info.avg_rate = 0.0;
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
+            LOG_I(MAC, "Shibin creating new entry ******************\n");
         }
     }
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].avg_rate = (1 - 1/99)*ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
-        LOG_I(MAC,"Shibin  tfinal stored values UE ID = %d and avg rate = %f \n", ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
-    } 
+        //LOG_I(MAC,"Shibin  tfinal stored values UE ID = %d and avg rate = %f \n", ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
+    }
 
 #ifdef TM5
 
