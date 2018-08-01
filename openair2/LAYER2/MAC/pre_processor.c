@@ -267,7 +267,7 @@ void assign_rbs_required (module_id_t Mod_id,
 
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
-            if (ue_avg_info[z].rnti == rnti) old_rate = ue_avg_info[z].avg_rate;
+            //if (ue_avg_info[z].rnti == rnti) old_rate = ue_avg_info[z].avg_rate;
             break;
 
         }
@@ -727,11 +727,9 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     valid_CCs[total_cc] = CC_id;
                     total_cc += 1;
                 }
-                if (total_ue_count) LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
+                //if (total_ue_count) LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
             }
         }
-        // total_ue_count
-        // this fuck doesnt work
 
         for (i = 0; i < total_cc; i++) {
             int index = 0;
@@ -746,7 +744,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     index++;
                 }
             }
-            if (total_ue_count) LOG_I(MAC, "Shibin calculated UE per CC  = %d \n ", index);
+            //if (total_ue_count) LOG_I(MAC, "Shibin calculated UE per CC  = %d \n ", index);
             // arrange the UE in increasing order or priority index
             for (int a = 0; a < index; a++) {
                 for (int b = a + 1; b < index; b++) {
