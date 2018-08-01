@@ -727,7 +727,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     valid_CCs[total_cc] = CC_id;
                     total_cc += 1;
                 }
-                LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
+                if (total_ue_count) LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
             }
         }
         // total_ue_count
@@ -746,7 +746,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     index++;
                 }
             }
-            LOG_I(MAC, "Shibin calculated UE per CC  = %d \n ", index);
+            if (total_ue_count) LOG_I(MAC, "Shibin calculated UE per CC  = %d \n ", index);
             // arrange the UE in increasing order or priority index
             for (int a = 0; a < index; a++) {
                 for (int b = a + 1; b < index; b++) {
@@ -807,18 +807,16 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             }
         }
     }
-    /*shibin updating the current value to 0 for all stored UE details
-    for (int x = 0; x<total_ue_encountered; x++) {
-        ue_avg_info[x].current_tti = 0.0;
-    }
+    /*//shibin updating the current value to 0 for all stored UE details
+    for (int x = 0; x<total_ue_encountered; x++) ue_avg_info[x].current_tti = 0.0;
+
     // shibin update the stored average rate based on the allocation in this TTI
     for (int z=0; z< local_stored; z++){
         int x = 0;
-        for (; x<total_ue_encountered; x++){
-            if (ue_avg_info[x].rnti == UE_RNTI(Mod_id,local_rb_allocations[z].UE_id)){
+        for (; x<total_ue_encountered; x++)
+            if (ue_avg_info[x].rnti == UE_RNTI(Mod_id,local_rb_allocations[z].UE_id))
                 ue_avg_info[x].current_tti = (1/99)*local_rb_allocations[z].total_tbs_rate;
-            }
-        }
+
         if (x == total_ue_encountered){
             UE_AVG_INFO temp_avg_info;
             temp_avg_info.rnti = UE_RNTI(Mod_id,local_rb_allocations[z].UE_id);
