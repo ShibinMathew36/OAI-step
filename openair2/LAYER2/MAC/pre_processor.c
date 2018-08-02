@@ -712,7 +712,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 continue;
 
             //Shibin remove the next line its just for debugging
-            if (UE_num_active_CC(UE_list, UE_id) > 0) LOG_I(MAC, "Shibin hit UE with more than one CC attached ****\n");
+            if (UE_num_active_CC(UE_list, UE_id) > 1) LOG_I(MAC, "Shibin hit UE with more than one CC attached ****\n");
 
             for (ii = 0; ii < UE_num_active_CC(UE_list, UE_id); ii++) {
                 CC_id = UE_list->ordered_CCids[ii][UE_id];
