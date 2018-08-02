@@ -757,6 +757,10 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     }
                 }
             }
+            //Shibin remove this, its just for verification purpose
+            LOG_I(MAC, "Shibin printing sorted UE for CC ID = %d based on priority index\n", valid_CCs[i]);
+            for (int a = 0; a < index; a++) LOG_I(MAC, "Shibin UE %d with ID = %d\n",(a+1), UE_per_cc[a]);
+
             for(int a = 0; a<index; a++) {
                 UE_id = UE_per_cc[a];
                 CC_id = valid_CCs[i];
@@ -805,7 +809,6 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                        nb_rbs_required_remaining,
                                                        rballoc_sub,
                                                        MIMO_mode_indicator, &local_rb_allocations[z]);
-                LOG_I(MAC, "Shibin total value after allocate = %f\n ", local_rb_allocations[z].total_tbs_rate);
             }
         }
     }
@@ -818,7 +821,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         for (; x<total_ue_encountered; x++) {
             if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
                 ue_avg_info[x].current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
-                LOG_I(MAC, "Shibin found stored value after allocate before = %f****************** after = %f\n",local_rb_allocations[z].total_tbs_rate,  ue_avg_info[x].current_tti);
+                //LOG_I(MAC, "Shibin found stored value after allocate before = %f****************** after = %f\n",local_rb_allocations[z].total_tbs_rate,  ue_avg_info[x].current_tti);
                 break;
             }
         }
@@ -829,7 +832,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             temp_avg_info.avg_rate = 0.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
-            LOG_I(MAC, "Shibin creating new entry ****************** for rnti = %d updated value = %f\n", UE_RNTI(Mod_id,local_rb_allocations[z].UE_id), ue_avg_info[x].current_tti);
+            //LOG_I(MAC, "Shibin creating new entry ****************** for rnti = %d updated value = %f\n", UE_RNTI(Mod_id,local_rb_allocations[z].UE_id), ue_avg_info[x].current_tti);
         }
     }
     // shibin - update the rate of UE not in the current TTI
@@ -1110,7 +1113,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
-  LOG_I(MAC,"Shibin  calculated value to store for UE %d = %f \n", rnti, UE_to_edit->total_tbs_rate);
+  LOG_I(MAC,"Shibin in CC %d PFS allocated %d RBs to UE %d \n",CC_id, temp_rb, UE_id);
 }
 
 
