@@ -781,6 +781,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     //LOG_I(MAC, "Shibin local stored value vs new %d and %d ******************\n", local_rb_allocations[z].UE_id, UE_id);
                     if (UE_id == local_rb_allocations[z].UE_id) {
                         UE_to_edit = &local_rb_allocations[z];
+                        break;
                     }
                 }
 
