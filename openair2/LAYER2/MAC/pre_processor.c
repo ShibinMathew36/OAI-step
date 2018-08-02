@@ -817,15 +817,15 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         int x = 0;
         for (; x<total_ue_encountered; x++) {
             if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
-                ue_avg_info[x].current_tti = (1 / 99)*local_rb_allocations[z].total_tbs_rate;
-                LOG_I(MAC, "Shibin found stored value after allocate ****************** updated value = %f\n", ue_avg_info[x].current_tti);
+                ue_avg_info[x].current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
+                LOG_I(MAC, "Shibin found stored value after allocate before = %f****************** after = %f\n",local_rb_allocations[z].total_tbs_rate,  ue_avg_info[x].current_tti);
                 break;
             }
         }
         if (x == total_ue_encountered){
             UE_AVG_INFO temp_avg_info;
             temp_avg_info.rnti = UE_RNTI(Mod_id,local_rb_allocations[z].UE_id);
-            ue_avg_info[x].current_tti = (1/99)*local_rb_allocations[z].total_tbs_rate;
+            ue_avg_info[x].current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
             temp_avg_info.avg_rate = 0.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
@@ -834,7 +834,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     }
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
-        ue_avg_info[x].avg_rate = (1 - 1/99)*ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
+        ue_avg_info[x].avg_rate = .99 * ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
         //LOG_I(MAC,"Shibin  changing   current tti value = %f \n", ue_avg_info[x].current_tti);
         // try printing the current tti values and check why avg rate is 0
     }
