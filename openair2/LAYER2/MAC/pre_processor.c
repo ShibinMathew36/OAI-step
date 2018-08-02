@@ -804,7 +804,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                        nb_rbs_required_remaining,
                                                        rballoc_sub,
                                                        MIMO_mode_indicator, UE_to_edit);
-                //LOG_I(MAC, "Shibin local value before edit UE ID = %d amd stored TBS = %f \n ", UE_to_edit->UE_id, UE_to_edit->total_tbs_rate);
+                LOG_I(MAC, "Shibin total value after allocate = %f\n ", UE_to_edit->total_tbs_rate);
             }
         }
     }
