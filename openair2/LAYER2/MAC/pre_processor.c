@@ -775,12 +775,12 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     continue;
 
                 transmission_mode = mac_xface->get_transmission_mode(Mod_id, CC_id, rnti);
-                UE_TEMP_INFO *UE_to_edit;
+                //UE_TEMP_INFO *UE_to_edit;
                 int z = 0;
                 for(; z < local_stored; z++) {
                     //LOG_I(MAC, "Shibin local stored value vs new %d and %d ******************\n", local_rb_allocations[z].UE_id, UE_id);
                     if (UE_id == local_rb_allocations[z].UE_id) {
-                        UE_to_edit = &local_rb_allocations[z];
+                        //UE_to_edit = &local_rb_allocations[z];
                         break;
                     }
                 }
@@ -790,7 +790,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     temp_struct.UE_id = UE_id;
                     temp_struct.total_tbs_rate = 0.0;
                     local_rb_allocations[local_stored] = temp_struct;
-                    UE_to_edit = &local_rb_allocations[local_stored];
+                    //UE_to_edit = &local_rb_allocations[local_stored];
                     local_stored += 1;
                 }
 
@@ -804,8 +804,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                        nb_rbs_required,
                                                        nb_rbs_required_remaining,
                                                        rballoc_sub,
-                                                       MIMO_mode_indicator, UE_to_edit);
-                LOG_I(MAC, "Shibin total value after allocate = %f\n ", UE_to_edit->total_tbs_rate);
+                                                       MIMO_mode_indicator, &local_rb_allocations[z]);
+                LOG_I(MAC, "Shibin total value after allocate = %f\n ", local_rb_allocations[z].total_tbs_rate);
             }
         }
     }
