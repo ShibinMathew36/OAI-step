@@ -817,7 +817,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         for (; x<total_ue_encountered; x++) {
             if (ue_avg_info[x].rnti == UE_RNTI(Mod_id, local_rb_allocations[z].UE_id)) {
                 ue_avg_info[x].current_tti = (1 / 99)*local_rb_allocations[z].total_tbs_rate;
-                //LOG_I(MAC, "Shibin found stored value after allocate ****************** updated value = %f\n", ue_avg_info[x].current_tti);
+                LOG_I(MAC, "Shibin found stored value after allocate ****************** updated value = %f\n", ue_avg_info[x].current_tti);
                 break;
             }
         }
@@ -828,13 +828,13 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             temp_avg_info.avg_rate = 0.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
-            //LOG_I(MAC, "Shibin creating new entry ****************** for rnti = %d\n", UE_RNTI(Mod_id,local_rb_allocations[z].UE_id));
+            LOG_I(MAC, "Shibin creating new entry ****************** for rnti = %d updated value = %f\n", UE_RNTI(Mod_id,local_rb_allocations[z].UE_id), ue_avg_info[x].current_tti);
         }
     }
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].avg_rate = (1 - 1/99)*ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
-        LOG_I(MAC,"Shibin  changing   current tti value = %f \n", ue_avg_info[x].current_tti);
+        //LOG_I(MAC,"Shibin  changing   current tti value = %f \n", ue_avg_info[x].current_tti);
         // try printing the current tti values and check why avg rate is 0
     }
 
@@ -1109,7 +1109,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
-  //LOG_I(MAC,"Shibin  calculated value to store for UE %d = %f \n", rnti, UE_to_edit->total_tbs_rate);
+  LOG_I(MAC,"Shibin  calculated value to store for UE %d = %f \n", rnti, UE_to_edit->total_tbs_rate);
 }
 
 
