@@ -758,9 +758,10 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 }
             }
             //Shibin remove this, its just for verification purpose
-            LOG_I(MAC, "Shibin printing sorted UE for CC ID = %d based on priority index\n", valid_CCs[i]);
-            for (int a = 0; a < index; a++) LOG_I(MAC, "Shibin UE %d with ID = %d\n",(a+1), UE_per_cc[a]);
-
+            if (total_ue_count == 4) {
+                LOG_I(MAC, "Shibin printing sorted UE for CC ID = %d based on priority index\n", valid_CCs[i]);
+                for (int a = 0; a < index; a++) LOG_I(MAC, "Shibin UE %d with ID = %d\n", (a + 1), UE_per_cc[a]);
+            }
             for(int a = 0; a<index; a++) {
                 UE_id = UE_per_cc[a];
                 CC_id = valid_CCs[i];
