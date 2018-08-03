@@ -168,7 +168,7 @@ void dlsch_scheduler_pre_processor_reset (int module_idP,int UE_id,
     int subframeP,
     int N_RBG,
     uint16_t nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
-    uint16_t  nb_rbs_required_remaining[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
+    uint16_t  retransmission_nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
     unsigned char rballoc_sub[MAX_NUM_CCs][N_RBG_MAX],
     unsigned char MIMO_mode_indicator[MAX_NUM_CCs][N_RBG_MAX]);
 
