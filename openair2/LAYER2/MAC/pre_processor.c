@@ -661,7 +661,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     UE_TEMP_INFO local_rb_allocations[total_ue_count];// to keep track of number of local objects created
     int local_stored = 0;
     for (int r1 = 0; r1 < 2; r1++) {
-        if (!r1 && retransmission_present) continue; // Shibin if there is no retransmission then skip to second round
+        if (!r1 && !retransmission_present) continue; // Shibin if there is no retransmission then skip to second round
 
         for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
             for (ii = 0; ii < UE_num_active_CC(UE_list, i); ii++) {
@@ -671,7 +671,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             }
         }
         if (!r1){
-
+            LOG_I(MAC, "Shibin hit retransmission\n");
             for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
                 UE_id = i;
                 rnti = UE_RNTI(Mod_id, UE_id);
@@ -700,7 +700,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                         local_stored += 1;
                     }
                     //Shibin make the allocations for retransmission
-                    dlsch_scheduler_pre_processor_allocate(Mod_id,
+                    if (retransmission_nb_rbs_required[CC_id][UE_id] > 0)
+                        dlsch_scheduler_pre_processor_allocate(Mod_id,
                                                            UE_id,
                                                            CC_id,
                                                            N_RBG[CC_id],
@@ -717,7 +718,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             continue;
         }
         // Shibin this will only hit in round 2 to do proportional fair on the remaining data to be sent
-
+        LOG_I(MAC, "Shibin hitting transmission\n");
         uint8_t valid_CCs[MAX_NUM_CCs];
         int total_cc = 0;
 
@@ -780,8 +781,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 for (int a = 0; a < index; a++) {
                     UE_id = UE_per_cc[a];
                     ue_sched_ctl = &UE_list->UE_sched_ctrl[UE_id];
-                    harq_pid = ue_sched_ctl->harq_pid[CC_id];
-                    round = ue_sched_ctl->round[CC_id];
+                    //harq_pid = ue_sched_ctl->harq_pid[CC_id];
+                    //round = ue_sched_ctl->round[CC_id];
                     rnti = UE_RNTI(Mod_id, UE_id);
 
                     // LOG_D(MAC,"UE %d rnti 0x\n", UE_id, rnti );
