@@ -644,6 +644,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
       if(round>0) {
           retransmission_nb_rbs_required[CC_id][UE_id] = UE_list->UE_template[CC_id][UE_id].nb_rb[harq_pid];
+          LOG_I(MAC, "Shibin UE %d needs %d RB for retransmission\n",UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
           retransmission_present = 1;
       }
 
@@ -718,7 +719,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             continue;
         }
         // Shibin this will only hit in round 2 to do proportional fair on the remaining data to be sent
-        LOG_I(MAC, "Shibin hitting transmission\n");
+        //LOG_I(MAC, "Shibin hitting transmission\n");
         uint8_t valid_CCs[MAX_NUM_CCs];
         int total_cc = 0;
 

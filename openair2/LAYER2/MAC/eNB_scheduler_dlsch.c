@@ -815,8 +815,8 @@ schedule_ue_spec(
           UE_list->eNB_UE_stats[CC_id][UE_id].dlsch_mcs1=eNB_UE_stats->dlsch_mcs1;
           UE_list->eNB_UE_stats[CC_id][UE_id].dlsch_mcs2=eNB_UE_stats->dlsch_mcs1;
         } else {
-          LOG_E(MAC,"[eNB %d] Frame %d CC_id %d : don't schedule UE %d, its retransmission takes more resources than we have\n",
-                module_idP, frameP, CC_id, UE_id);
+          LOG_E(MAC,"[eNB %d] Frame %d CC_id %d : don't schedule UE %d, its retransmission takes more resources than we have it needs %d RB and got %d\n",
+                module_idP, frameP, CC_id, UE_id, nb_rb, nb_available_rb);
         }
       } else { /* This is a potentially new SDU opportunity */
 
