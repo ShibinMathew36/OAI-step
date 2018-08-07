@@ -56,7 +56,7 @@
 #define DEBUG_eNB_SCHEDULER 1
 #define DEBUG_HEADER_PARSING 1
 int total_ue_encountered = 0;
-UE_AVG_INFO ue_avg_info[5];
+UE_AVG_INFO ue_avg_info[10];
 
 //#define DEBUG_PACKET_TRACE 1
 
@@ -846,7 +846,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].avg_rate = .99 * ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
-        LOG_I(MAC, "Shibin [eNB %d] Frame %d: updating stored value for UE %d, new rate = %f\n",Mod_id, frameP, ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
+        //LOG_I(MAC, "Shibin [eNB %d] Frame %d: updating stored value for UE %d, new rate = %f\n",Mod_id, frameP, ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
     }
 
 #ifdef TM5
