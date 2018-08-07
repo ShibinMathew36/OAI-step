@@ -262,7 +262,7 @@ void assign_rbs_required (module_id_t Mod_id,
           TBS = mac_xface->get_TBS_DL(eNB_UE_stats[CC_id]->dlsch_mcs1,nb_rbs_required[CC_id][UE_id]);
         } // end of while
 
-        LOG_D(MAC,"[eNB %d] Frame %d: UE %d on CC %d: RB unit %d,  nb_required RB %d (TBS %d, mcs %d)\n",
+        LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d: RB unit %d,  nb_required RB %d (TBS %d, mcs %d)\n",
               Mod_id, frameP,UE_id, CC_id,  min_rb_unit[CC_id], nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
 
         float old_rate = 1.0;
@@ -274,7 +274,7 @@ void assign_rbs_required (module_id_t Mod_id,
             }
         }
         ach_rate[CC_id][UE_id] = (TBS/.001)/old_rate;
-        //LOG_I(MAC,"Shibin calculated avg rate for ue %d is %f old rate = %f TBS value = %d\n", UE_id, ach_rate[CC_id][UE_id], old_rate, TBS);
+        LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d calculated avg rate is %f and old rate = %f\n",Mod_id, frameP,UE_id, CC_id, ach_rate[CC_id][UE_id], old_rate);
       }
     }
   }
@@ -672,7 +672,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             }
         }
         if (!r1){
-            LOG_I(MAC, "Shibin hit retransmission\n");
+            LOG_I(MAC, "Shibin retransmission detected\n");
             for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
                 UE_id = i;
                 rnti = UE_RNTI(Mod_id, UE_id);
@@ -734,9 +734,6 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                 if (!phy_stats_exist(Mod_id, rnti))
                     continue;
 
-                //Shibin remove the next line its just for debugging
-                if (UE_num_active_CC(UE_list, UE_id) > 1) LOG_I(MAC, "Shibin hit UE with more than one CC attached ****\n");
-
                 for (ii = 0; ii < UE_num_active_CC(UE_list, UE_id); ii++) {
                     CC_id = UE_list->ordered_CCids[ii][UE_id];
                     int z = 0;
@@ -749,7 +746,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     }
                 }
             }
-            //LOG_I(MAC, "Shibin calculated total_cc = %d \n ", total_cc);
+
             for (i = 0; i < total_cc; i++) {
                 CC_id = valid_CCs[i];
                 int index = 0;
@@ -775,8 +772,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                     }
                 }
                 //Shibin remove this, its just for verification purpose
-                if (total_ue_count == 4) {
-                    LOG_I(MAC, "Shibin printing sorted UE for CC ID = %d based on priority index\n", valid_CCs[i]);
+                if (total_ue_count) {
+                    LOG_I(MAC, "Shibin [eNB %d] Frame %d: printing sorted UE for CC ID = %d based on priority index\n",Mod_id, frameP, valid_CCs[i]);
                     for (int a = 0; a < index; a++) LOG_I(MAC, "Shibin UE %d with ID = %d\n", (a + 1), UE_per_cc[a]);
                 }
                 for (int a = 0; a < index; a++) {
@@ -849,6 +846,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     // shibin - update the rate of UE not in the current TTI
     for (int x = 0; x<total_ue_encountered; x++) {
         ue_avg_info[x].avg_rate = .99 * ue_avg_info[x].avg_rate + ue_avg_info[x].current_tti;
+        LOG_I(MAC, "Shibin [eNB %d] Frame %d: updating stored value for UE %d, new rate = %f\n",Mod_id, frameP, ue_avg_info[x].rnti, ue_avg_info[x].avg_rate);
     }
 
 #ifdef TM5
@@ -1122,7 +1120,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
-  LOG_I(MAC,"Shibin for subFrame %d in CC %d PFS allocated %d RBs to UE %d \n",subframeP, CC_id, temp_rb, UE_id);
+  LOG_I(MAC,"Shibin [Frame %d] for subFrame %d in CC %d PFS allocated %d RBs to UE %d \n",Mod_id, subframeP, CC_id, temp_rb, UE_id);
 }
 
 
