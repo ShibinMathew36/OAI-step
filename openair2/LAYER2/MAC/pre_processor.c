@@ -268,8 +268,8 @@ void assign_rbs_required (module_id_t Mod_id,
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
             if (ue_avg_info[z].rnti == rnti) {
-                old_rate = ue_avg_info[z].avg_rate;
-                //LOG_I(MAC,"Shibin found stored value in assign rbs ***** %f\n", old_rate);
+                old_rate = (ue_avg_info[z].avg_rate) ? ue_avg_info[z].avg_rate : .0001;
+                LOG_I(MAC,"Shibin found stored value in assign rbs ***** %f for UE = %d\n", old_rate, UE_id);
                 break;
             }
         }
