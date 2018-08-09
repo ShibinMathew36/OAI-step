@@ -837,11 +837,11 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         if (x == total_ue_encountered){
             UE_AVG_INFO temp_avg_info;
             temp_avg_info.rnti = UE_RNTI(Mod_id,local_rb_allocations[z].UE_id);
-            ue_avg_info[x].current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
+            temp_avg_info.current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
             temp_avg_info.avg_rate = 1.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
-            LOG_I(MAC, "Shibin creating new volatile value for UE ID %d and RNTI %d \n",local_rb_allocations[z].UE_id,temp_avg_info.rnti);
+            LOG_I(MAC, "Shibin creating new volatile value for UE ID %d and RNTI %d \n",local_rb_allocations[z].UE_id, temp_avg_info.rnti);
         }
     }
     // shibin - update the rate of UE not in the current TTI
