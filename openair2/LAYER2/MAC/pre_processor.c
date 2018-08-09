@@ -838,7 +838,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             UE_AVG_INFO temp_avg_info;
             temp_avg_info.rnti = UE_RNTI(Mod_id,local_rb_allocations[z].UE_id);
             ue_avg_info[x].current_tti = .01 * local_rb_allocations[z].total_tbs_rate;
-            temp_avg_info.avg_rate = 0.0; // this will be a problem
+            temp_avg_info.avg_rate = 1.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
         }
@@ -1104,7 +1104,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
             temp_rb += min_rb_unit - 1;
           }
         } else {
-	  if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
+	  //if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
 	    rballoc_sub[CC_id][i] = 1;
 	    ue_sched_ctl->rballoc_sub_UE[CC_id][i] = 1;
 	    MIMO_mode_indicator[CC_id][i] = 1;
@@ -1114,7 +1114,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
 	    nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit;
 	    ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit;
 	    temp_rb += min_rb_unit;
-	  }
+	 // }
 	}
       } // dl_pow_off[CC_id][UE_id] ! = 0
     }
