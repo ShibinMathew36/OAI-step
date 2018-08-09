@@ -841,6 +841,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
             temp_avg_info.avg_rate = 1.0; // this will be a problem
             ue_avg_info[x] = temp_avg_info;
             total_ue_encountered += 1;
+            LOG_I(MAC, "Shibin creating new volatile value for UE ID %d and RNTI %d \n",local_rb_allocations[z].UE_id,temp_avg_info.rnti);
         }
     }
     // shibin - update the rate of UE not in the current TTI
