@@ -1083,10 +1083,10 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
   //Shibin fetching rnti for UE stat
   rnti_t rnti = UE_RNTI(Mod_id,UE_id);
   LTE_eNB_UE_stats *eNB_UE_stats = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti);
-
+    int temp = 1;
   //LOG_I(MAC,"Shibin in subFrame %d in CC %d I have %d RBGs to allocate for UE : %d\n", subframeP, CC_id, N_RBG, UE_id);
   for(i=0; i<N_RBG; i++) {
-      int temp = 1;
+
     if((rballoc_sub[CC_id][i] == 0)           &&
         (ue_sched_ctl->rballoc_sub_UE[CC_id][i] == 0) &&
         (nb_rbs_required_remaining[CC_id][UE_id]>0)   &&
@@ -1105,7 +1105,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit+1;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit - 1;
                   temp_rb += min_rb_unit - 1;
-                  LOG_I(MAC,"Shibin in loop 1 allocated rb in iteration %d rb count = %d\n", temp, temp_rb);
+                  LOG_I(MAC,"Shibin in loop 1 for UE : %d allocated rb in iteration %d rb count = %d\n", UE_id, temp, temp_rb);
                   temp += 1;
               }
           } else {
@@ -1120,7 +1120,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit;
                   temp_rb += min_rb_unit;
-                  LOG_I(MAC,"Shibin in loop 2allocated rb in iteration %d rb count = %d\n", temp, temp_rb);
+                  LOG_I(MAC,"Shibin in loop 2 for UE : %d allocated rb in iteration %d rb count = %d\n",UE_id, temp, temp_rb);
                   temp += 1;
               }
           }
