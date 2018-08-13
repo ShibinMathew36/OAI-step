@@ -262,8 +262,8 @@ void assign_rbs_required (module_id_t Mod_id,
           TBS = mac_xface->get_TBS_DL(eNB_UE_stats[CC_id]->dlsch_mcs1,nb_rbs_required[CC_id][UE_id]);
         } // end of while
 
-        LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d: RB unit %d,  nb_required RB %d (TBS %d, mcs %d)\n",
-              Mod_id, frameP,UE_id, CC_id,  min_rb_unit[CC_id], nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
+        LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d:  nb_required RB %d (TBS %d, mcs %d)\n",
+              Mod_id, frameP,UE_id, CC_id, nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
 
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
@@ -714,7 +714,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                                rballoc_sub,
                                                                MIMO_mode_indicator, &local_rb_allocations[z],
                                                                subframeP);
-                        LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
+                        //LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
                     }
 
                 }
@@ -774,11 +774,11 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                         }
                     }
                 }
-                //Shibin remove this, its just for verification purpose
+                /*Shibin remove this, its just for verification purpose
                 if (total_ue_count) {
                     LOG_I(MAC, "Shibin Frame : %d and Subframe : %d printing sorted UE for CC ID = %d based on priority index\n",frameP, subframeP, valid_CCs[i]);
                     for (int a = 0; a < index; a++) LOG_I(MAC, "Shibin UE %d with ID = %d\n", (a + 1), UE_per_cc[a]);
-                }
+                } */
                 for (int a = 0; a < index; a++) {
                     UE_id = UE_per_cc[a];
                     ue_sched_ctl = &UE_list->UE_sched_ctrl[UE_id];
@@ -1084,8 +1084,9 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
   rnti_t rnti = UE_RNTI(Mod_id,UE_id);
   LTE_eNB_UE_stats *eNB_UE_stats = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti);
 
-  LOG_I(MAC,"Shibin in subFrame %d in CC %d I have %d RBGs to allocate for UE : %d\n", subframeP, CC_id, N_RBG, UE_id);
+  //LOG_I(MAC,"Shibin in subFrame %d in CC %d I have %d RBGs to allocate for UE : %d\n", subframeP, CC_id, N_RBG, UE_id);
   for(i=0; i<N_RBG; i++) {
+      int temp = 1;
     if((rballoc_sub[CC_id][i] == 0)           &&
         (ue_sched_ctl->rballoc_sub_UE[CC_id][i] == 0) &&
         (nb_rbs_required_remaining[CC_id][UE_id]>0)   &&
@@ -1104,6 +1105,8 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit+1;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit - 1;
                   temp_rb += min_rb_unit - 1;
+                  LOG_I(MAC,"Shibin in loop 1 allocated rb in iteration %d rb count = %d\n", temp, temp_rb);
+                  temp += 1;
               }
           } else {
               if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
@@ -1117,6 +1120,8 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit;
                   temp_rb += min_rb_unit;
+                  LOG_I(MAC,"Shibin in loop 2allocated rb in iteration %d rb count = %d\n", temp, temp_rb);
+                  temp += 1;
               }
           }
       }
