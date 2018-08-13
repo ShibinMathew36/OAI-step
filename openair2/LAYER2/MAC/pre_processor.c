@@ -1108,6 +1108,10 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   LOG_I(MAC,"Shibin in loop 1 for UE : %d allocated rb in iteration %d rb count = %d\n", UE_id, temp, temp_rb);
                   temp += 1;
               }
+              else{
+                  LOG_I(MAC,"Shibin failed in nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit-1 loop in iteration : %d\n", i);
+              }
+
           } else {
               if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
                   rballoc_sub[CC_id][i] = 1;
@@ -1123,8 +1127,17 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   LOG_I(MAC,"Shibin in loop 2 for UE : %d allocated rb in iteration %d rb count = %d\n",UE_id, temp, temp_rb);
                   temp += 1;
               }
+              else{
+                  LOG_I(MAC,"Shibin failed in nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit loop in iteration : %d\n", i);
+              }
           }
       }
+      else{
+          LOG_I(MAC,"Shibin failed in ue_sched_ctl->dl_pow_off[CC_id] != 0 loop in iteration : %d\n", i);
+      }
+    }
+    else{
+        LOG_I(MAC,"Shibin failed in outer loop in iteration : %d\n", i);
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
