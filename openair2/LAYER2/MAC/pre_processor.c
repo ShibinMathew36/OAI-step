@@ -263,13 +263,13 @@ void assign_rbs_required (module_id_t Mod_id,
         } // end of while
 
         //LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d:  nb_required RB %d (TBS %d, mcs %d)\n",
-              Mod_id, frameP,UE_id, CC_id, nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
+              //Mod_id, frameP,UE_id, CC_id, nb_rbs_required[CC_id][UE_id], TBS, eNB_UE_stats[CC_id]->dlsch_mcs1);
 
         float old_rate = 1.0;
         for (int z = 0; z<total_ue_encountered; z++){
             if (ue_avg_info[z].rnti == rnti) {
                 old_rate = (ue_avg_info[z].avg_rate) ? ue_avg_info[z].avg_rate : .0001;
-                LOG_I(MAC,"Shibin found stored value in assign rbs ***** %f for UE = %d\n", old_rate, UE_id);
+                //LOG_I(MAC,"Shibin found stored value in assign rbs ***** %f for UE = %d\n", old_rate, UE_id);
                 break;
             }
         }
@@ -662,6 +662,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
     UE_TEMP_INFO local_rb_allocations[total_ue_count];// to keep track of number of local objects created
     int local_stored = 0;
     for (int r1 = 0; r1 < 2; r1++) {
+        int used_up =0;
         if (!r1 && !retransmission_present) continue; // Shibin if there is no retransmission then skip to second round
 
         for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
@@ -713,16 +714,19 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                                nb_rbs_required_remaining,
                                                                rballoc_sub,
                                                                MIMO_mode_indicator, &local_rb_allocations[z],
-                                                               subframeP);
+                                                               subframeP, &used_up);
+                        if (used_up) break;
                         //LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
                     }
 
                 }
+                if (used_up) break;
             }
             continue;
         }
         // Shibin this will only hit in round 2 to do proportional fair on the remaining data to be sent
         //LOG_I(MAC, "Shibin hitting transmission\n");
+        if (used_up) break;
         uint8_t valid_CCs[MAX_NUM_CCs];
         int total_cc = 0;
 
@@ -820,7 +824,7 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                        nb_rbs_required,
                                                        nb_rbs_required_remaining,
                                                        rballoc_sub,
-                                                       MIMO_mode_indicator, &local_rb_allocations[z], subframeP);
+                                                       MIMO_mode_indicator, &local_rb_allocations[z], subframeP, &used_up);
                 }
             }
         }
@@ -1074,7 +1078,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     uint16_t      nb_rbs_required[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
     uint16_t      nb_rbs_required_remaining[MAX_NUM_CCs][NUMBER_OF_UE_MAX],
     unsigned char rballoc_sub[MAX_NUM_CCs][N_RBG_MAX],
-    unsigned char MIMO_mode_indicator[MAX_NUM_CCs][N_RBG_MAX], UE_TEMP_INFO *UE_to_edit, sub_frame_t subframeP)
+    unsigned char MIMO_mode_indicator[MAX_NUM_CCs][N_RBG_MAX], UE_TEMP_INFO *UE_to_edit, sub_frame_t subframeP, int *used_up)
 {
 
   int i, temp_rb = 0;
@@ -1083,7 +1087,6 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
   //Shibin fetching rnti for UE stat
   rnti_t rnti = UE_RNTI(Mod_id,UE_id);
   LTE_eNB_UE_stats *eNB_UE_stats = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti);
-    int temp = 1;
   //LOG_I(MAC,"Shibin in subFrame %d in CC %d I have %d RBGs to allocate for UE : %d\n", subframeP, CC_id, N_RBG, UE_id);
   for(i=0; i<N_RBG; i++) {
 
@@ -1105,11 +1108,9 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit+1;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit - 1;
                   temp_rb += min_rb_unit - 1;
-                  //LOG_I(MAC,"Shibin in loop 1 for UE : %d allocated rb in iteration %d rb count = %d\n", UE_id, temp, temp_rb);
-                  temp += 1;
               }
 
-          } else {
+          } else if (temp_rb < 39){
               if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit){
                   rballoc_sub[CC_id][i] = 1;
                   ue_sched_ctl->rballoc_sub_UE[CC_id][i] = 1;
@@ -1121,15 +1122,14 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
                   nb_rbs_required_remaining[CC_id][UE_id] = nb_rbs_required_remaining[CC_id][UE_id] - min_rb_unit;
                   ue_sched_ctl->pre_nb_available_rbs[CC_id] = ue_sched_ctl->pre_nb_available_rbs[CC_id] + min_rb_unit;
                   temp_rb += min_rb_unit;
-                  //LOG_I(MAC,"Shibin in loop 2 for UE : %d allocated rb in iteration %d rb count = %d\n",UE_id, temp, temp_rb);
-                  temp += 1;
               }
           }
       }
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
-  //LOG_I(MAC,"Shibin in subFrame %d in CC %d PFS allocated %d RBs to UE %d \n", subframeP, CC_id, temp_rb, UE_id);
+  if (temp_rb >= 41) *used_up = 1;
+  LOG_I(MAC,"Shibin in subFrame %d in CC %d PFS allocated %d RBs to UE %d \n", subframeP, CC_id, temp_rb, UE_id);
 }
 
 
