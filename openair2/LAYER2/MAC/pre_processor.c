@@ -1096,7 +1096,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
         (ue_sched_ctl->pre_nb_available_rbs[CC_id] < nb_rbs_required[CC_id][UE_id])) {
 
       if (ue_sched_ctl->dl_pow_off[CC_id] != 0 )  {
-          if ((i == N_RBG-1) && ((N_RB_DL == 25) || (N_RB_DL == 50))) {
+          if ((temp_rb < 39) && (i == N_RBG-1) && ((N_RB_DL == 25) || (N_RB_DL == 50))) {
               if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit-1){
                   rballoc_sub[CC_id][i] = 1;
                   ue_sched_ctl->rballoc_sub_UE[CC_id][i] = 1;
