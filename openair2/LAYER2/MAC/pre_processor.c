@@ -716,15 +716,15 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                                MIMO_mode_indicator, &local_rb_allocations[z],
                                                                subframeP, &used_up);
                         if (used_up) {
-                            break;
                             LOG_I(MAC, "Shibin breaking out of loop 1:\n");
+                            break;
                         }
                         //LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
                     }
                 }
                 if (used_up) {
-                    break;
                     LOG_I(MAC, "Shibin breaking out of loop 2:\n");
+                    break;
                 }
             }
             continue;
@@ -732,8 +732,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
         // Shibin this will only hit in round 2 to do proportional fair on the remaining data to be sent
         //LOG_I(MAC, "Shibin hitting transmission\n");
         if (used_up) {
-            break;
             LOG_I(MAC, "Shibin breaking out of loop 3:\n");
+            break;
         }
         uint8_t valid_CCs[MAX_NUM_CCs];
         int total_cc = 0;
