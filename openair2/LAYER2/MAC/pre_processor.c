@@ -715,17 +715,26 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                                                                rballoc_sub,
                                                                MIMO_mode_indicator, &local_rb_allocations[z],
                                                                subframeP, &used_up);
-                        if (used_up) break;
+                        if (used_up) {
+                            break;
+                            LOG_I(MAC, "Shibin breaking out of loop 1:\n");
+                        }
                         //LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
                     }
                 }
-                if (used_up) break;
+                if (used_up) {
+                    break;
+                    LOG_I(MAC, "Shibin breaking out of loop 2:\n");
+                }
             }
             continue;
         }
         // Shibin this will only hit in round 2 to do proportional fair on the remaining data to be sent
         //LOG_I(MAC, "Shibin hitting transmission\n");
-        if (used_up) break;
+        if (used_up) {
+            break;
+            LOG_I(MAC, "Shibin breaking out of loop 3:\n");
+        }
         uint8_t valid_CCs[MAX_NUM_CCs];
         int total_cc = 0;
 
@@ -1127,7 +1136,10 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
     }
   }
   UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
-  if (temp_rb >= 41) *used_up = 1;
+  if (temp_rb >= 41) {
+      *used_up = 1;
+      LOG_I(MAC,"Shibin used_up is set to %d \n", *used_up);
+  }
   LOG_I(MAC,"Shibin in subFrame %d in CC %d PFS allocated %d RBs to UE %d \n", subframeP, CC_id, temp_rb, UE_id);
 }
 
