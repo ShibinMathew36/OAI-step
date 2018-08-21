@@ -1097,7 +1097,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
   LTE_eNB_UE_stats *eNB_UE_stats = mac_xface->get_eNB_UE_stats(Mod_id,CC_id,rnti);
   //LOG_I(MAC,"Shibin in subFrame %d in CC %d I have %d RBGs to allocate for UE : %d\n", subframeP, CC_id, N_RBG, UE_id);
   for(i=0; i<N_RBG; i++) {
-
+    if (*used_up == 1) break;
     if((rballoc_sub[CC_id][i] == 0)           &&
         (ue_sched_ctl->rballoc_sub_UE[CC_id][i] == 0) &&
         (nb_rbs_required_remaining[CC_id][UE_id]>0)   &&
@@ -1135,7 +1135,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
       }
     }
   }
-  UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
+  if (temp_rb) UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
   if (temp_rb >= 41) {
       *used_up = 1;
       LOG_I(MAC,"Shibin used_up is set to %d \n", *used_up);
