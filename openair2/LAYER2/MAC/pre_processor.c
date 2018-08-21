@@ -661,8 +661,8 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
 
     UE_TEMP_INFO local_rb_allocations[total_ue_count];// to keep track of number of local objects created
     int local_stored = 0;
+    int used_up =0;
     for (int r1 = 0; r1 < 2; r1++) {
-        int used_up =0;
         if (!r1 && !retransmission_present) continue; // Shibin if there is no retransmission then skip to second round
 
         for (i = UE_list->head; i >= 0; i = UE_list->next[i]) {
@@ -718,7 +718,6 @@ void dlsch_scheduler_pre_processor (module_id_t   Mod_id,
                         if (used_up) break;
                         //LOG_I(MAC, "Shibin Frame : %d and Subframe : %d retransmission detected for UE : %d and it needs %d RBs.\n", frameP, subframeP, UE_id, retransmission_nb_rbs_required[CC_id][UE_id]);
                     }
-
                 }
                 if (used_up) break;
             }
@@ -1096,7 +1095,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
         (ue_sched_ctl->pre_nb_available_rbs[CC_id] < nb_rbs_required[CC_id][UE_id])) {
 
       if (ue_sched_ctl->dl_pow_off[CC_id] != 0 )  {
-          if ((temp_rb < 39) && (i == N_RBG-1) && ((N_RB_DL == 25) || (N_RB_DL == 50))) {
+          if ((i == N_RBG-1) && ((N_RB_DL == 25) || (N_RB_DL == 50))) {
               if (nb_rbs_required_remaining[CC_id][UE_id] >=  min_rb_unit-1){
                   rballoc_sub[CC_id][i] = 1;
                   ue_sched_ctl->rballoc_sub_UE[CC_id][i] = 1;
