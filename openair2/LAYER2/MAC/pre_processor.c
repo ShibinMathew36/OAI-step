@@ -210,7 +210,7 @@ void assign_rbs_required (module_id_t Mod_id,
       eNB_UE_stats[CC_id]->DL_cqi[0], MIN_CQI_VALUE, MAX_CQI_VALUE);
       */
       eNB_UE_stats[CC_id]->dlsch_mcs1=cqi_to_mcs[eNB_UE_stats[CC_id]->DL_cqi[0]];
-
+      LOG_I(MAC,"\n CQI value for UE %d is %d ",UE_id, eNB_UE_stats[CC_id]->DL_cqi[0]);
       eNB_UE_stats[CC_id]->dlsch_mcs1 = eNB_UE_stats[CC_id]->dlsch_mcs1;//cmin(eNB_UE_stats[CC_id]->dlsch_mcs1,openair_daq_vars.target_ue_dl_mcs);
 
     }
@@ -1127,7 +1127,7 @@ void dlsch_scheduler_pre_processor_allocate (module_id_t   Mod_id,
   }
   if (temp_rb) UE_to_edit->total_tbs_rate += (mac_xface->get_TBS_DL(eNB_UE_stats->dlsch_mcs1, temp_rb)) / .001;
   if (temp_rb >= 41) *used_up = 1;
-  LOG_I(MAC,"Shibin in subFrame %d in CC %d PFS allocated %d RBs to UE %d \n", subframeP, CC_id, temp_rb, UE_id);
+  //LOG_I(MAC,"Shibin in subFrame %d in CC %d PFS allocated %d RBs to UE %d \n", subframeP, CC_id, temp_rb, UE_id);
 }
 
 
