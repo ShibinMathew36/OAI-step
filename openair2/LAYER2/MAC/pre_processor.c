@@ -211,10 +211,6 @@ void assign_rbs_required (module_id_t Mod_id,
       eNB_UE_stats[CC_id]->DL_cqi[0], MIN_CQI_VALUE, MAX_CQI_VALUE);
       */
       eNB_UE_stats[CC_id]->dlsch_mcs1=cqi_to_mcs[eNB_UE_stats[CC_id]->DL_cqi[0]];
-      struct timeval  te;
-      gettimeofday(&te, NULL);
-      long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
-      LOG_I(MAC,"Time %lld CQI value for UE %d is %d \n",milliseconds, UE_id, eNB_UE_stats[CC_id]->DL_cqi[0]);
       eNB_UE_stats[CC_id]->dlsch_mcs1 = eNB_UE_stats[CC_id]->dlsch_mcs1;//cmin(eNB_UE_stats[CC_id]->dlsch_mcs1,openair_daq_vars.target_ue_dl_mcs);
 
     }
@@ -248,7 +244,10 @@ void assign_rbs_required (module_id_t Mod_id,
         }
 
         TBS = mac_xface->get_TBS_DL(eNB_UE_stats[CC_id]->dlsch_mcs1,nb_rbs_required[CC_id][UE_id]);
-
+        struct timeval  te;
+        gettimeofday(&te, NULL);
+        long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
+        LOG_I(MAC,"Chicago Time %lld TBS value for UE %d is %d \n",milliseconds, UE_id, TBS);
         LOG_D(MAC,"[preprocessor] start RB assignement for UE %d CC_id %d dl buffer %d (RB unit %d, MCS %d, TBS %d) \n",
               UE_id, CC_id, UE_list->UE_template[pCCid][UE_id].dl_buffer_total,
               nb_rbs_required[CC_id][UE_id],eNB_UE_stats[CC_id]->dlsch_mcs1,TBS);
