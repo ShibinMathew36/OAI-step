@@ -115,10 +115,10 @@ uint32_t get_TBS_DL(uint8_t mcs, uint16_t nb_rb)
   if ((nb_rb > 0) && (mcs < 29)) {
 #ifdef TBS_FIX
     TBS = 3*TBStable[get_I_TBS(mcs)][nb_rb-1]/4;
-    //TBS = TBS>>3;
+    TBS = TBS>>3;
 #else
     TBS = TBStable[get_I_TBS(mcs)][nb_rb-1];
-    //TBS = TBS>>3;
+    TBS = TBS>>3;
 #endif
     return(TBS);
   } else {
