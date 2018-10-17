@@ -244,10 +244,6 @@ void assign_rbs_required (module_id_t Mod_id,
         }
 
         TBS = mac_xface->get_TBS_DL(eNB_UE_stats[CC_id]->dlsch_mcs1,nb_rbs_required[CC_id][UE_id]);
-        struct timeval  te;
-        gettimeofday(&te, NULL);
-        long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
-        LOG_I(MAC,"Chicago Time %lld TBS value for UE %d is %d \n",milliseconds, UE_id, mac_xface->get_TBS_DL(eNB_UE_stats[CC_id]->dlsch_mcs1,41));
         LOG_D(MAC,"[preprocessor] start RB assignement for UE %d CC_id %d dl buffer %d (RB unit %d, MCS %d, TBS %d) \n",
               UE_id, CC_id, UE_list->UE_template[pCCid][UE_id].dl_buffer_total,
               nb_rbs_required[CC_id][UE_id],eNB_UE_stats[CC_id]->dlsch_mcs1,TBS);
@@ -276,6 +272,10 @@ void assign_rbs_required (module_id_t Mod_id,
                 break;
             }
         }
+        struct timeval  te;
+        gettimeofday(&te, NULL);
+        long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000;
+        LOG_I(MAC,"Chicago Time %lld TBS value for UE %d is %d \n",milliseconds, UE_id, TBS);
         ach_rate[CC_id][UE_id] = (TBS/.001)/old_rate;
         //LOG_I(MAC,"Shibin [eNB %d] Frame %d: UE %d on CC %d calculated avg rate is %f and old rate = %f\n",Mod_id, frameP,UE_id, CC_id, ach_rate[CC_id][UE_id], old_rate);
       }
